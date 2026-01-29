@@ -1,41 +1,49 @@
 # QGIS AI Bridge - TODO List
 
 **Last Updated:** 2026-01-29
-**Current Phase:** Phase A - Workflow Recording System
-**Current Command Count:** 23/~65 target
+**Current Phase:** Phase A.2 - Record OilFlow2D Workflows
+**Current Command Count:** 28/~65 target
 
 ---
 
-## 🎯 Current Priority: Phase A - Workflow Recording System
+## ✅ COMPLETED: Phase A.1 - Workflow Recording System (2026-01-29)
 
-**Goal:** Build proof of concept for OilFlow2D automation FIRST, then generalize.
+All 5 workflow recording commands implemented and tested:
 
-### Phase A.1: Build Recording Commands (NEXT - 4-5 commands)
+- [x] **workflow.record_start** - Begin capturing Qt events ✅
+  - Captures: clicks, keyboard, dialogs, dropdown selections, focus
+  - Filters noise (only significant events)
+  - Auto-logs widget properties (objectName, class, text, window title, parent)
+  - Stores with timestamps and elapsed time
 
-- [ ] **workflow.record_start** - Begin capturing Qt events
-  - Capture: clicks, keyboard, dialogs, dropdown selections
-  - Filter out noise (mouse moves, hovers)
-  - Auto-log widget properties (objectName, class, text, window title)
-  - Store with timestamps
+- [x] **workflow.record_stop** - Stop recording and generate workflow doc ✅
+  - Stops event capture
+  - Generates structured markdown in `mcp-server/workflows/<name>.md`
+  - Generates raw JSON for debugging
+  - Returns summary (step count, duration, file paths)
 
-- [ ] **workflow.record_stop** - Stop recording and generate workflow doc
-  - Stop event capture
-  - Generate structured markdown in `mcp-server/workflows/<name>.md`
-  - Return summary (step count, duration)
-
-- [ ] **workflow.add_note** - Add manual annotations during recording
+- [x] **workflow.add_note** - Add manual annotations during recording ✅
   - User calls this to add context
   - Inserts note at current timestamp
   - Explains WHY a step matters
 
-- [ ] **workflow.list** - List all saved workflows
-  - Scan `mcp-server/workflows/` directory
-  - Return workflow names and descriptions
+- [x] **workflow.list** - List all saved workflows ✅
+  - Scans `mcp-server/workflows/` directory
+  - Returns workflow names, purposes, recorded dates
 
-- [ ] **workflow.get** - Retrieve specific workflow
-  - Read workflow markdown file
-  - Return formatted workflow for AI to follow
-  - Include all steps, params, timing
+- [x] **workflow.get** - Retrieve specific workflow ✅
+  - Reads workflow markdown file
+  - Returns formatted workflow for AI to follow
+  - Includes all steps, params, timing
+
+**Test Results:**
+- Recorded test_workflow with 12 events over 11 seconds
+- Generated markdown + JSON successfully
+- All commands tested via curl and working
+
+---
+
+## 🎯 Current Priority: Phase A.2 - Record OilFlow2D Workflows
 
 ### Phase A.2: Record OilFlow2D Workflows (5 workflows)
 

@@ -826,16 +826,23 @@ qgis_control({
 
 ### 🔧 In Progress
 
-**Phase A: Workflow Recording System (NEW PRIORITY #1)**
-- ⬜ workflow.record_start - Begin capturing interactions
-- ⬜ workflow.record_stop - Generate workflow document
-- ⬜ workflow.add_note - Manual annotations
-- ⬜ workflow.list - List saved workflows
-- ⬜ workflow.get - Retrieve specific workflow
+**Phase A.2: Record OilFlow2D Workflows (NEXT)**
+- ⬜ oilflow2d_new_project.md - Record actual OilFlow2D project creation
+- ⬜ oilflow2d_add_boundary.md
+- ⬜ oilflow2d_configure_simulation.md
+- ⬜ oilflow2d_run_simulation.md
+- ⬜ oilflow2d_export_results.md
+
+**Phase A.1: Workflow Recording System ✅ COMPLETE (2026-01-29)**
+- ✅ workflow.record_start - Begin capturing interactions
+- ✅ workflow.record_stop - Generate workflow document
+- ✅ workflow.add_note - Manual annotations
+- ✅ workflow.list - List saved workflows
+- ✅ workflow.get - Retrieve specific workflow
 
 **Phase 3: Essential GIS Operations**
 - ✅ layer.list - List all layers with metadata (COMPLETE - 2026-01-29)
-- ⬜ layer.add - Paused pending workflow recording
+- ⬜ layer.add - Paused pending workflow discovery
 
 ### ⬜ Planned (NEW Priority Order)
 
@@ -1275,7 +1282,7 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
 ---
 
 **Last Updated:** 2026-01-29
-**Current Command Count:** 23 commands
+**Current Command Count:** 28 commands
 **Command Categories:**
   - qgis.* (12):
     - **OS-level** (3): launch, find_process, kill_process
@@ -1285,8 +1292,8 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
   - error.* (1): detect
   - dialog.* (1): close
   - layer.* (1): list
-  - workflow.* (0): **NEXT TO BUILD**
-**Status:** ✅ Phase 1 & 2 Complete, 🎥 Phase A (Workflow Recording) Starting
+  - workflow.* (5): record_start, record_stop, add_note, list, get
+**Status:** ✅ Phase 1 & 2 & A.1 Complete, 🎥 Phase A.2 (Record OilFlow2D Workflows) Next
 **New Strategy:** OilFlow2D proof of concept FIRST, then generalize
 **Roadmap (REVISED):**
   - **Phase A (NEW PRIORITY):** Workflow recording system (4-5 commands) → Record OilFlow2D workflows → Test automation → Target: 28-29 commands
