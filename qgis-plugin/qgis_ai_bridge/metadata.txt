@@ -1,0 +1,22 @@
+[general]
+name=QGIS AI Bridge
+qgisMinimumVersion=3.0
+description=AI-native automation framework for QGIS testing, debugging, and documentation
+version=1.0.0
+author=AI Bridge Team
+email=support@qgisaibridge.dev
+
+about=QGIS AI Bridge enables AI agents to programmatically control, test, and document QGIS plugins. It exposes a comprehensive REST API for UI introspection, plugin management, project operations, and more. Designed for plugin developers, testers, and documentation teams.
+
+tracker=https://github.com/qgis-ai-bridge/qgis-ai-bridge/issues
+repository=https://github.com/qgis-ai-bridge/qgis-ai-bridge
+tags=python,testing,automation,ai,api,development
+
+homepage=https://github.com/qgis-ai-bridge/qgis-ai-bridge
+category=Plugins
+icon=icon.png
+experimental=True
+deprecated=False
+
+server=False
+hasProcessingProvider=False

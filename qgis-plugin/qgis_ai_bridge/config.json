@@ -1,0 +1,22 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5557,
+    "api_key": null
+  },
+  "security": {
+    "require_api_key": false,
+    "allowed_python_modules": ["qgis", "PyQt5", "os", "sys", "time", "datetime", "json"],
+    "sandbox_mode": false
+  },
+  "logging": {
+    "level": "INFO",
+    "log_api_calls": true,
+    "log_file": "qgis_ai_bridge.log"
+  },
+  "features": {
+    "enable_python_exec": true,
+    "enable_plugin_reload": true,
+    "enable_qgis_restart": false
+  }
+}
