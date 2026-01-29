@@ -1,0 +1,28 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "QGIS AI Bridge (Plugin + MCP)"
+    }
+  ],
+  "settings": {
+    "python.analysis.extraPaths": [
+      "C:\\Program Files\\QGIS 3.40.7\\apps\\qgis-ltr\\python",
+      "C:\\Program Files\\QGIS 3.40.7\\apps\\Python39\\Lib\\site-packages"
+    ],
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.vscode-pylance",
+      "eamodio.gitlens"
+    ]
+  }
+}
