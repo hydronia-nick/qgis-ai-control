@@ -124,7 +124,7 @@ qgis-ai-tools/
 
 ### QGIS Control (require QGIS running)
 - **Lifecycle:** status, log, read_log, reload_plugin, restart, api_status, restart_api, execute_action
-- **Widget Control:** list_windows, find, inspect, click, wait_for
+- **Widget Control:** list_windows, find, inspect, click, wait_for, set_text, select_item, send_keys
 - **Recovery:** crash.save, crash.restore, crash.list
 - **Error Handling:** error.detect, dialog.close
 
@@ -167,10 +167,11 @@ Custom development for QGIS AI automation.
 
 ## Status
 
-✅ Phase 1 Complete - Full autonomous operation
+✅ **Phase 1 & 2 Complete** - Full autonomous operation with form interaction
 - 22 commands working
 - Complete lifecycle control
 - Error detection and recovery
+- Form interaction (text input, dropdowns, keyboard)
 - All operations via MCP
 
-Next: Phase 2 - Form input (widget.set_text, select_item, send_keys)
+**Ready for production use!**

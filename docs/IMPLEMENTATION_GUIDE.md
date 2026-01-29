@@ -825,10 +825,10 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
     - **OS-level** (3): launch, find_process, kill_process
     - **API-level** (9): status, log, read_log, reload_plugin, restart, api_status, restart_api, read_python_console, execute_action
   - crash.* (3): save, restore, list
-  - widget.* (5): list_windows, find, inspect, click, wait_for
+  - widget.* (8): list_windows, find, inspect, click, wait_for, set_text, select_item, send_keys
   - error.* (1): detect
   - dialog.* (1): close
-**Next Build:** widget.set_text, widget.select_item, widget.send_keys (Phase 2)
+**Status:** ✅ Phase 1 & 2 Complete - Full autonomous operation with form interaction
 **Architecture:** Single unified qgis-control MCP (no qgis-visual needed)
 **Known Limitation:** qgis.read_python_console widget detection is complex. Use qgis.read_log for diagnostics instead.
 **VS Code Setup:** See VSCODE_SETUP.md for Cline/Codex configuration instructions

@@ -18,7 +18,7 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # Recent ac
   - OS-level: launch, find_process, kill_process
   - API-level: status, log, read_log, reload_plugin, restart, api_status, restart_api, execute_action
 **crash.*** - Recovery (save, restore, list)
-**widget.*** - UI Control (list_windows, find, inspect, click, wait_for)
+**widget.*** - UI Control (list_windows, find, inspect, click, wait_for, set_text, select_item, send_keys)
 **error.*** - Error Detection (detect)
 **dialog.*** - Dialog Management (close)
 
