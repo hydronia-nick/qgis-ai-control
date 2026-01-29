@@ -2,16 +2,16 @@
 
 **READ THIS FIRST - EVERY NEW CONVERSATION STARTS HERE**
 
-**STATUS UPDATE 2026-01-29:** Phase 1 & 2 Complete - 22 commands in unified MCP
+**STATUS UPDATE 2026-01-29:** Phase 1 & 2 Complete, Phase 3 Started (23 commands)
 - ✅ **Phase 1:** Full autonomous lifecycle (launch, kill, restart QGIS)
 - ✅ **Phase 2:** Form interaction (set_text, select_item, send_keys)
-- ✅ **UNIFIED MCP:** Single qgis-control server handles both OS-level (3) and QGIS API (19) commands
+- ✅ **Phase 3:** Layer operations started (layer.list complete)
+- ✅ **UNIFIED MCP:** Single qgis-control server handles both OS-level and API commands
 - ✅ Autonomous UI control (discover, interact, wait, detect errors, recover)
-- ✅ QGIS action execution (qgis.execute_action - open dialogs, trigger menus)
-- ✅ All commands tested via MCP only (no manual intervention)
-- 📋 **Phase 3 Ready:** Essential GIS operations (layer, project, canvas management)
-- 🎯 **Target:** 54-58 commands total for full GIS automation
-- 🚀 **Next:** layer.list (foundation for all layer operations)
+- 📋 **NEW PRIORITY:** Workflow recording system for OilFlow2D proof of concept
+- 🎥 **Phase A (Next):** Build workflow.* commands (record, stop, add_note, list, get)
+- 🎯 **Strategy:** OilFlow2D automation first (proof of concept), then generalize to full GIS
+- 🚀 **Next:** workflow.record_start (capture user interactions for workflow documentation)
 
 ---
 
@@ -154,6 +154,228 @@ MCP Client                    Plugin                     QGIS
 - `qgis_control({command: "form.set_field", ...})`
 
 **Result: 99% token reduction, infinite scalability**
+
+---
+
+## 🎥 Workflow Recording & Documentation (CRITICAL)
+
+### The Problem
+
+Without workflow documentation, AI must:
+- ❌ Guess action names for plugin menus
+- ❌ Discover dialog objectNames through trial-error
+- ❌ Figure out sequence every conversation
+- ❌ Waste 2000+ tokens on discovery
+
+**This is unsustainable for production workflows.**
+
+### The Solution: Workflow Library
+
+Create **token-efficient workflow documentation** for common patterns:
+- OilFlow2D project creation
+- OilFlow2D simulation runs
+- General QGIS data loading workflows
+- Standard GIS operations
+
+**Format:** Similar to `qgis_mcp_skills.md` but for **step-by-step workflows**
+
+### Workflow Recording Commands
+
+**workflow.record_start** - Begin capturing user interactions
+```python
+qgis_control({
+    "command": "workflow.record_start",
+    "params": {"workflow_name": "oilflow2d_new_project"}
+})
+```
+- Starts Qt event capture
+- Filters to significant events: clicks, text input, dialogs, dropdowns
+- Auto-logs widget properties (objectName, class, text, window title)
+- Timestamps all events
+
+**workflow.record_stop** - End recording and generate workflow
+```python
+qgis_control({"command": "workflow.record_stop"})
+```
+- Stops event capture
+- Generates structured markdown workflow document
+- Saves to `mcp-server/workflows/<name>.md`
+- Returns summary with command count
+
+**workflow.add_note** - Add manual annotation during recording
+```python
+qgis_control({
+    "command": "workflow.add_note",
+    "params": {"note": "This sets the output coordinate system"}
+})
+```
+- Adds context that events alone can't capture
+- User can explain WHY a step matters
+
+**workflow.list** - List all saved workflows
+```python
+qgis_control({"command": "workflow.list"})
+```
+
+**workflow.get** - Retrieve specific workflow
+```python
+qgis_control({
+    "command": "workflow.get",
+    "params": {"workflow_name": "oilflow2d_new_project"}
+})
+```
+
+### Workflow Document Standard
+
+**Location:** `mcp-server/workflows/<workflow_name>.md`
+
+**Format:**
+```markdown
+# Workflow: OilFlow2D New Project
+
+**Purpose:** Create new OilFlow2D model project
+**Prerequisites:** QGIS running, OilFlow2D plugin enabled
+**Estimated time:** 15 seconds
+**Recorded:** 2026-01-29
+
+## Steps
+
+### 1. Open New Project Dialog
+- **Command:** qgis.execute_action
+- **Params:** {"action_name": "oilflow_new_project"}
+- **Wait:** 0.5s
+- **Expected:** Dialog "New OilFlow2D Project" appears
+- **Note:** This is the OilFlow2D menu → New Project action
+
+### 2. Set Project Name
+- **Command:** widget.set_text
+- **Target:** objectName="lineEdit_projectName"
+- **Value:** <user_provided>
+- **Wait:** 0.1s
+- **Note:** Project name will be used for output files
+
+### 3. Select CRS
+- **Command:** widget.select_item
+- **Target:** objectName="comboBox_crs"
+- **Value:** "EPSG:26918" (or <user_provided>)
+- **Wait:** 0.1s
+
+### 4. Click Create
+- **Command:** widget.click
+- **Target:** objectName="buttonBox" → button with text="OK"
+- **Wait:** 1.0s
+- **Verify:** widget.wait_for objectName="OilFlow2DProject" state="visible"
+
+## Troubleshooting
+- If action not found → plugin not enabled (use plugin.list)
+- If dialog doesn't appear → check qgis.read_log
+- If button not found → inspect with widget.list_windows
+
+## Variables
+- `<user_provided>` = Values user must specify each time
+- Can be parameterized in automation scripts
+```
+
+**Token Budget:** ~250-300 tokens per workflow (vs 2000+ for discovery)
+
+### Workflow Library Structure
+
+```
+mcp-server/
+├── server.py
+├── qgis_mcp_skills.md           ← Command reference (<200 tokens)
+└── workflows/                    ← NEW: Workflow library
+    ├── README.md                ← Index of workflows with descriptions
+    ├── oilflow2d_new_project.md
+    ├── oilflow2d_add_boundary.md
+    ├── oilflow2d_configure_simulation.md
+    ├── oilflow2d_run_simulation.md
+    ├── oilflow2d_export_results.md
+    └── general_qgis_load_shapefile.md
+```
+
+### Standards for Recording
+
+**DO:**
+- ✅ Record complete workflows end-to-end
+- ✅ Add notes explaining WHY steps matter
+- ✅ Include verification steps (widget.wait_for)
+- ✅ Document expected dialogs/windows
+- ✅ Note any prerequisites
+- ✅ Include troubleshooting section
+- ✅ Mark variable values as `<user_provided>`
+- ✅ Keep workflows focused (one task per workflow)
+
+**DON'T:**
+- ❌ Record exploratory clicking (clean before saving)
+- ❌ Skip wait times (causes race conditions)
+- ❌ Hardcode paths (use variables)
+- ❌ Assume widgets are visible (add wait_for)
+- ❌ Skip error handling steps
+
+### Recording Process
+
+1. **Plan:** Decide what workflow to record
+2. **Start:** Call workflow.record_start
+3. **Execute:** Perform the workflow in QGIS as user
+4. **Annotate:** Add notes for important steps
+5. **Stop:** Call workflow.record_stop
+6. **Review:** Check generated markdown
+7. **Edit:** Clean up, add troubleshooting
+8. **Test:** Have AI follow workflow autonomously
+9. **Commit:** Save to git
+
+### Priority: Proof of Concept First
+
+**Phase A: Build Recording System (4-5 commands)**
+- ⬜ workflow.record_start
+- ⬜ workflow.record_stop
+- ⬜ workflow.add_note
+- ⬜ workflow.list
+- ⬜ workflow.get
+
+**Phase B: Record OilFlow2D Workflows**
+- 🎥 Record: "Create New OilFlow2D Project"
+- 🎥 Record: "Add Boundary Shapefile"
+- 🎥 Record: "Configure Simulation Parameters"
+- 🎥 Record: "Run Simulation"
+- 🎥 Record: "Export Results"
+
+**Phase C: Implement Missing Commands (as discovered)**
+- Implement only what workflows reveal we need
+- Priority based on actual usage, not theory
+
+**Phase D: Test Full Automation**
+- AI follows workflows autonomously
+- Verify end-to-end automation works
+- Document any gaps
+
+**Phase E: Generalize**
+- Continue with Phase 3-5 GIS commands
+- Build general workflow library
+
+### Why This Matters
+
+**Token Efficiency:**
+- Command reference: ~200 tokens (qgis_mcp_skills.md)
+- Workflow library: ~250 tokens per workflow
+- Total: ~1500 tokens for 5 OilFlow2D workflows
+- **vs 10,000+ tokens for discovery each conversation**
+
+**Reusability:**
+- Once recorded, works forever
+- Any AI can follow workflows
+- No re-learning or re-discovering
+
+**Production Ready:**
+- Real workflows, not theoretical commands
+- Tested patterns that actually work
+- Documentation that survives conversations
+
+**Prioritization:**
+- Build only what you actually use
+- Proof of concept before generalization
+- OilFlow2D automation first, GIS commands second
 
 ---
 
@@ -604,17 +826,55 @@ qgis_control({
 
 ### 🔧 In Progress
 
+**Phase A: Workflow Recording System (NEW PRIORITY #1)**
+- ⬜ workflow.record_start - Begin capturing interactions
+- ⬜ workflow.record_stop - Generate workflow document
+- ⬜ workflow.add_note - Manual annotations
+- ⬜ workflow.list - List saved workflows
+- ⬜ workflow.get - Retrieve specific workflow
+
 **Phase 3: Essential GIS Operations**
 - ✅ layer.list - List all layers with metadata (COMPLETE - 2026-01-29)
-- ⬜ layer.add - Next up
+- ⬜ layer.add - Paused pending workflow recording
 
-### ⬜ Planned (Priority Order)
+### ⬜ Planned (NEW Priority Order)
 
-**Phase 3: Essential GIS Operations (Target: 13-15 commands)**
+**Phase A: Workflow Recording & OilFlow2D Proof of Concept**
 
-**Layer Management (6-7 commands):**
-1. ✅ layer.list - Get all layers with properties (name, type, CRS, extent, feature count) - **DONE**
-2. layer.add - Add vector/raster layer to project
+**Step 1: Build Recording System (4-5 commands) - PRIORITY #1**
+1. workflow.record_start - Begin Qt event capture
+2. workflow.record_stop - Generate structured markdown
+3. workflow.add_note - Add manual annotations during recording
+4. workflow.list - List all saved workflows
+5. workflow.get - Retrieve specific workflow for AI to follow
+
+**Step 2: Record OilFlow2D Workflows**
+- 🎥 Workflow: "OilFlow2D New Project"
+- 🎥 Workflow: "OilFlow2D Add Boundary Data"
+- 🎥 Workflow: "OilFlow2D Configure Simulation"
+- 🎥 Workflow: "OilFlow2D Run Simulation"
+- 🎥 Workflow: "OilFlow2D Export Results"
+
+**Step 3: Implement Commands Discovered During Recording**
+- Implement ONLY commands that workflows reveal are needed
+- Priority based on actual usage frequency in workflows
+- Examples: layer.add, project.save, plugin.list (as discovered)
+
+**Step 4: Test Full Autonomous OilFlow2D Workflow**
+- AI follows recorded workflows end-to-end
+- No manual intervention
+- Document any gaps or failures
+- Iterate until fully autonomous
+
+**Phase B: Complete OilFlow2D Critical Commands (as discovered)**
+- Commands will be prioritized based on workflow recordings
+- Estimated: layer.add, project.save, project.new, plugin.list
+
+**Phase C: Generalize to Standard GIS Operations (Phase 3-5 from original plan)**
+
+**Layer Management (remaining 5-6 commands):**
+1. ✅ layer.list - Get all layers with properties - **DONE**
+2. layer.add - Add vector/raster layer to project (may be done in Phase B)
 3. layer.remove - Remove layer from project
 4. layer.set_active - Set the active layer
 5. layer.set_visible - Show/hide layer
@@ -737,15 +997,100 @@ Before marking any command as ✅ Working:
 
 ## 🚀 Next Command to Build
 
-**Command:** layer.add
-**Priority:** HIGH (Load data into QGIS)
-**Purpose:** Add vector or raster layers to the current project
-**Params:** `{"path": str, "name": str (optional), "provider": str (optional)}`
-**Returns:** `{"success": bool, "layer_id": str, "layer_name": str}`
+**PRIORITY SHIFT: Workflow Recording System First**
 
-**Why next:** After listing layers, we need to add layers to work with them. Essential for loading data.
+**Command:** workflow.record_start
+**Priority:** CRITICAL (Foundation for OilFlow2D automation)
+**Purpose:** Begin recording user interactions to generate workflow documentation
+**Params:** `{"workflow_name": str, "description": str (optional)}`
+**Returns:** `{"success": bool, "recording": bool, "workflow_name": str, "start_time": str}`
 
-**Implementation approach:**
+**Why next:** We need workflow documentation BEFORE building more commands. Recording actual OilFlow2D workflows will:
+1. Reveal exactly what commands we need (prioritize by actual usage)
+2. Document exact action names, dialog objectNames, sequences
+3. Create token-efficient workflow library (~250 tokens vs 2000+ for discovery)
+4. Enable proof of concept for OilFlow2D automation
+5. Validate our approach before building 30+ more commands
+
+**Implementation approach for workflow.record_start:**
+```python
+from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtWidgets import QApplication
+import datetime
+
+class WorkflowRecorder(QObject):
+    """Event filter to capture significant Qt events"""
+
+    def __init__(self):
+        super().__init__()
+        self.recording = False
+        self.events = []
+        self.workflow_name = None
+        self.start_time = None
+
+    def eventFilter(self, obj, event):
+        """Filter Qt events and log significant ones"""
+        if not self.recording:
+            return False
+
+        # Capture significant events only
+        if event.type() in [
+            QEvent.MouseButtonPress,  # Clicks
+            QEvent.KeyPress,          # Keyboard input
+            QEvent.Show,              # Dialog opens
+            QEvent.Hide,              # Dialog closes
+            QEvent.FocusIn,           # Widget focus
+        ]:
+            self.log_event(obj, event)
+
+        return False  # Don't block events
+
+    def log_event(self, obj, event):
+        """Log event with widget properties"""
+        event_data = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "elapsed": (datetime.datetime.now() - self.start_time).total_seconds(),
+            "event_type": event.type().name,
+            "widget_class": obj.__class__.__name__,
+            "objectName": obj.objectName() if hasattr(obj, 'objectName') else None,
+            "text": obj.text() if hasattr(obj, 'text') else None,
+            "window_title": obj.windowTitle() if hasattr(obj, 'windowTitle') else None,
+        }
+        self.events.append(event_data)
+
+# Global recorder instance
+_recorder = WorkflowRecorder()
+
+def workflow_record_start(params):
+    """Start recording workflow"""
+    if 'workflow_name' not in params:
+        return {"success": False, "error": "Missing required parameter: workflow_name"}
+
+    try:
+        global _recorder
+
+        if _recorder.recording:
+            return {"success": False, "error": "Already recording. Stop current recording first."}
+
+        _recorder.workflow_name = params['workflow_name']
+        _recorder.start_time = datetime.datetime.now()
+        _recorder.events = []
+        _recorder.recording = True
+
+        # Install event filter on QApplication
+        QApplication.instance().installEventFilter(_recorder)
+
+        return {
+            "success": True,
+            "recording": True,
+            "workflow_name": _recorder.workflow_name,
+            "start_time": _recorder.start_time.isoformat()
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+```
+
+**Implementation approach for workflow.record_stop:**
 ```python
 from qgis.core import QgsProject, QgsVectorLayer, QgsRasterLayer
 import os
@@ -930,7 +1275,7 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
 ---
 
 **Last Updated:** 2026-01-29
-**Current Command Count:** 23 commands (1 new in Phase 3)
+**Current Command Count:** 23 commands
 **Command Categories:**
   - qgis.* (12):
     - **OS-level** (3): launch, find_process, kill_process
@@ -940,13 +1285,17 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
   - error.* (1): detect
   - dialog.* (1): close
   - layer.* (1): list
-**Status:** ✅ Phase 1 & 2 Complete, Phase 3 In Progress (1/13-15 commands)
-**Roadmap:**
-  - Phase 3 (Essential GIS): 13-15 commands for layer/project/canvas control → Target: 35-37 total
-  - Phase 4 (Data Processing): 7-8 commands for geoprocessing and features → Target: 42-45 total
-  - Phase 5 (Output/Export): 3 commands for data export → Target: 45-48 total
-  - Future Phases: Styling, layouts, plugin management → Target: 54-58 total
-**Next Up:** layer.add (Add vector/raster layers to project)
+  - workflow.* (0): **NEXT TO BUILD**
+**Status:** ✅ Phase 1 & 2 Complete, 🎥 Phase A (Workflow Recording) Starting
+**New Strategy:** OilFlow2D proof of concept FIRST, then generalize
+**Roadmap (REVISED):**
+  - **Phase A (NEW PRIORITY):** Workflow recording system (4-5 commands) → Record OilFlow2D workflows → Test automation → Target: 28-29 commands
+  - **Phase B:** Implement OilFlow2D-critical commands (discovered via workflows) → Target: ~35 commands
+  - Phase C (Essential GIS): Remaining layer/project/canvas commands → Target: ~45 commands
+  - Phase D (Data Processing): Geoprocessing and features → Target: ~52 commands
+  - Phase E (Output/Export): Data export → Target: ~55 commands
+  - Future Phases: Styling, layouts, plugin management → Target: 60-65 total
+**Next Up:** workflow.record_start (Build workflow recording system for OilFlow2D automation)
 **Architecture:** Single unified qgis-control MCP (no qgis-visual needed)
 **Known Limitation:** qgis.read_python_console widget detection is complex. Use qgis.read_log for diagnostics instead.
 **VS Code Setup:** See VSCODE_SETUP.md for Cline/Codex configuration instructions
