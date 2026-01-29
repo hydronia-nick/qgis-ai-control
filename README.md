@@ -169,9 +169,28 @@ Custom development for QGIS AI automation.
 
 ✅ **Phase 1 & 2 Complete** - Full autonomous operation with form interaction
 - 22 commands working
-- Complete lifecycle control
+- Complete lifecycle control (launch, kill, restart QGIS)
 - Error detection and recovery
 - Form interaction (text input, dropdowns, keyboard)
 - All operations via MCP
 
 **Ready for production use!**
+
+## Roadmap
+
+**Phase 3: Essential GIS Operations** (13-15 commands)
+- Layer management (add, remove, list, visibility, reorder)
+- Project operations (open, save, get_info, set_crs)
+- Map canvas control (zoom, pan, extent, refresh)
+
+**Phase 4: Data Processing** (7-8 commands)
+- Processing algorithms (list, run, get_result)
+- Feature/attribute operations (select, query, get_selected)
+
+**Phase 5: Output/Export** (3 commands)
+- Export layer to file formats
+- Export map as image/PDF
+
+**Target:** 54-58 commands total for comprehensive GIS automation
+
+See [IMPLEMENTATION_GUIDE.md](docs/IMPLEMENTATION_GUIDE.md) for detailed roadmap and implementation plans.

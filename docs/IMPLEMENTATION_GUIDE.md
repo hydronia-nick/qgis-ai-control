@@ -2,14 +2,16 @@
 
 **READ THIS FIRST - EVERY NEW CONVERSATION STARTS HERE**
 
-**STATUS UPDATE 2026-01-29:** Phase 1 Complete - 22 commands in unified MCP
-- ✅ **UNIFIED MCP:** Single qgis-control server handles both OS-level (launch, find_process, kill_process) and QGIS API (19 commands)
-- ✅ **Full Autonomous Lifecycle:** Can launch, kill, and restart QGIS entirely via MCP
-- ✅ Autonomous UI control foundation (discover, interact, wait, detect errors, recover)
+**STATUS UPDATE 2026-01-29:** Phase 1 & 2 Complete - 22 commands in unified MCP
+- ✅ **Phase 1:** Full autonomous lifecycle (launch, kill, restart QGIS)
+- ✅ **Phase 2:** Form interaction (set_text, select_item, send_keys)
+- ✅ **UNIFIED MCP:** Single qgis-control server handles both OS-level (3) and QGIS API (19) commands
+- ✅ Autonomous UI control (discover, interact, wait, detect errors, recover)
 - ✅ QGIS action execution (qgis.execute_action - open dialogs, trigger menus)
-- ✅ Self-debugging (qgis.read_python_console - needs widget detection fix)
-- ✅ All commands tested via MCP only (no manual intervention, no qgis-visual needed)
-- Next: Fix Python console reading, Phase 2 UI interaction (set_text, select_item, keyboard)
+- ✅ All commands tested via MCP only (no manual intervention)
+- 📋 **Phase 3 Ready:** Essential GIS operations (layer, project, canvas management)
+- 🎯 **Target:** 54-58 commands total for full GIS automation
+- 🚀 **Next:** layer.list (foundation for all layer operations)
 
 ---
 
@@ -592,21 +594,83 @@ qgis_control({
 
 ### 🔧 In Progress
 
-None - Phase 1 complete (Discovery + Error Recovery)
+None - Phase 1 & 2 complete (Discovery, Error Recovery, Form Interaction)
 
 ### ⬜ Planned (Priority Order)
 
-**UI Control Commands:**
-1. dialog.open - Open plugin dialog
-2. dialog.close - Close dialog
-3. dialog.list - List open dialogs
-4. dialog.find - Find dialog by title/class
-5. form.set_field - Set field value
-6. form.get_field - Get field value
-7. form.fill - Fill entire form
-8. form.submit - Submit form
-9. widget.click - Click widget/button
-10. widget.find - Find widget by name/text
+**Phase 3: Essential GIS Operations (Target: 13-15 commands)**
+
+**Layer Management (6-7 commands):**
+1. layer.add - Add vector/raster layer to project
+2. layer.remove - Remove layer from project
+3. layer.list - Get all layers with properties (name, type, CRS, extent, feature count)
+4. layer.set_active - Set the active layer
+5. layer.set_visible - Show/hide layer
+6. layer.reorder - Change layer order in TOC
+7. layer.get_info - Get detailed layer metadata
+
+**Project Operations (3-4 commands):**
+8. project.new - Create new project (may use qgis.execute_action)
+9. project.open - Open existing project file
+10. project.save - Save current project
+11. project.save_as - Save project to new location
+12. project.get_info - Get project properties (CRS, file path, layers, etc.)
+13. project.set_crs - Set project coordinate system
+
+**Map Canvas Control (4-5 commands):**
+14. canvas.zoom_full - Zoom to full extent
+15. canvas.zoom_to_layer - Zoom to specific layer
+16. canvas.zoom_to_extent - Zoom to coordinates (xmin, ymin, xmax, ymax)
+17. canvas.pan - Pan to location (x, y)
+18. canvas.refresh - Refresh map view
+19. canvas.get_extent - Get current visible extent
+20. canvas.set_crs - Set canvas CRS
+
+**Phase 4: Data Processing (Target: 7-8 commands)**
+
+**Processing Algorithms (3-4 commands):**
+21. processing.list_algorithms - List available processing algorithms (with search/filter)
+22. processing.get_params - Get algorithm parameters and types
+23. processing.run - Execute processing algorithm with params
+24. processing.get_result - Get processing results/output
+
+**Feature/Attribute Operations (3-4 commands):**
+25. features.select_by_expression - Select features using QGIS expression
+26. features.get_selected - Get selected feature attributes and geometry
+27. features.clear_selection - Clear feature selection
+28. attribute_table.open - Open attribute table for layer
+29. features.query - Query features by attributes (SQL-like)
+
+**Phase 5: Output/Export (Target: 3 commands)**
+
+**Data Export (3 commands):**
+30. export.layer - Export layer to file (shapefile, geojson, gpkg, etc.)
+31. export.map_image - Export map canvas as image (png, jpg, format, dpi)
+32. export.pdf - Export map to PDF
+
+**Future Phases (Lower Priority):**
+
+**Styling/Symbology (3-4 commands):**
+- style.apply - Apply style file (.qml) to layer
+- style.set_renderer - Set renderer type (single, categorized, graduated)
+- style.set_color_ramp - Apply color scheme
+- style.get_current - Get current layer style
+
+**Print Layouts (3 commands):**
+- layout.list - List print layouts
+- layout.create - Create new layout
+- layout.export - Export layout to PDF/image
+
+**Plugin Management (3 commands):**
+- plugin.list - List installed plugins with status
+- plugin.enable - Enable plugin
+- plugin.disable - Disable plugin
+
+**Target Command Counts:**
+- Phase 3: 13-15 commands → **~35-37 total**
+- Phase 4: 7-8 commands → **~42-45 total**
+- Phase 5: 3 commands → **~45-48 total**
+- Future: 9-10 commands → **~54-58 total**
 
 ---
 
@@ -653,31 +717,59 @@ Before marking any command as ✅ Working:
 
 ## 🚀 Next Command to Build
 
-**Command:** dialog.list
-**Priority:** HIGH (UI control foundation)
-**Purpose:** List all open dialogs to discover what's available
-**Params:** `{}`
-**Returns:** `{"success": bool, "dialogs": list}`
+**Phase 3 Starting Point: Layer Management**
 
-**Why next:** Before we can control dialogs, we need to see what's open
+**Command:** layer.list
+**Priority:** CRITICAL (Foundation for all GIS operations)
+**Purpose:** List all layers in the project with metadata
+**Params:** `{"include_metadata": bool (optional, default True)}`
+**Returns:** `{"success": bool, "layers": list, "count": int}`
+
+**Why next:** Can't do any GIS work without knowing what layers exist. This is the foundation for all layer operations.
 
 **Implementation approach:**
 ```python
-from PyQt5.QtWidgets import QApplication
+from qgis.core import QgsProject
 
-def dialog_list(params):
-    widgets = []
-    for widget in QApplication.topLevelWidgets():
-        if widget.isVisible():
-            widgets.append({
-                "class": widget.__class__.__name__,
-                "title": widget.windowTitle(),
-                "objectName": widget.objectName()
-            })
-    return {"success": True, "dialogs": widgets, "count": len(widgets)}
+def layer_list(params):
+    """List all layers in project with metadata"""
+    include_metadata = params.get('include_metadata', True)
+
+    try:
+        project = QgsProject.instance()
+        layers = []
+
+        for layer in project.mapLayers().values():
+            layer_info = {
+                "id": layer.id(),
+                "name": layer.name(),
+                "type": layer.type().name if hasattr(layer.type(), 'name') else str(layer.type()),
+                "is_valid": layer.isValid(),
+                "is_visible": project.layerTreeRoot().findLayer(layer.id()).isVisible()
+            }
+
+            if include_metadata:
+                layer_info.update({
+                    "crs": layer.crs().authid() if layer.crs().isValid() else "N/A",
+                    "extent": layer.extent().toString() if layer.extent() else "N/A",
+                    "feature_count": layer.featureCount() if hasattr(layer, 'featureCount') else 0,
+                    "source": layer.source()
+                })
+
+            layers.append(layer_info)
+
+        return {
+            "success": True,
+            "layers": layers,
+            "count": len(layers)
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 ```
 
 **Start here:** Follow "Adding a Command" workflow above
+
+**After layer.list, continue with:** layer.add, layer.remove, layer.set_active, layer.set_visible
 
 ---
 
@@ -829,6 +921,12 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
   - error.* (1): detect
   - dialog.* (1): close
 **Status:** ✅ Phase 1 & 2 Complete - Full autonomous operation with form interaction
+**Roadmap:**
+  - Phase 3 (Essential GIS): 13-15 commands for layer/project/canvas control → Target: 35-37 total
+  - Phase 4 (Data Processing): 7-8 commands for geoprocessing and features → Target: 42-45 total
+  - Phase 5 (Output/Export): 3 commands for data export → Target: 45-48 total
+  - Future Phases: Styling, layouts, plugin management → Target: 54-58 total
+**Next Up:** layer.list (Phase 3 foundation - list all layers with metadata)
 **Architecture:** Single unified qgis-control MCP (no qgis-visual needed)
 **Known Limitation:** qgis.read_python_console widget detection is complex. Use qgis.read_log for diagnostics instead.
 **VS Code Setup:** See VSCODE_SETUP.md for Cline/Codex configuration instructions
