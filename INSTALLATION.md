@@ -1,4 +1,4 @@
-# QGIS AI Tools - Installation Guide
+# QGIS AI Bridge - Installation Guide
 
 Complete installation guide for setting up QGIS AI control on any system.
 
@@ -8,6 +8,10 @@ Complete installation guide for setting up QGIS AI control on any system.
 - ✅ QGIS 3.x installed
 - ✅ Claude Code CLI or VS Code with Cline extension
 
+## Important: Repository Structure
+
+**This repository IS the QGIS plugin itself.** You clone it directly into your QGIS plugins folder, not to a separate location.
+
 ## Installation Steps
 
 ### 1. Install Python Dependencies
@@ -16,59 +20,71 @@ Complete installation guide for setting up QGIS AI control on any system.
 pip install requests psutil mcp
 ```
 
-### 2. Install QGIS Plugin
-
-**Copy the plugin folder to QGIS plugins directory:**
+### 2. Clone Repository Directly to QGIS Plugins Folder
 
 **Windows:**
-```
-Copy qgis_ai_bridge/ to:
-C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins\qgis_ai_bridge\
+```bash
+cd "C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins"
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 ```
 
 **Mac:**
-```
-Copy qgis_ai_bridge/ to:
-~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/qgis_ai_bridge/
+```bash
+cd ~/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 ```
 
 **Linux:**
-```
-Copy qgis_ai_bridge/ to:
-~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/qgis_ai_bridge/
-```
-
-**Note:** The QGIS plugin MUST be in the plugins folder. Do not move it elsewhere.
-
-### 3. Set Up MCP Server
-
-**Option A: Use this portable folder (recommended)**
-
-1. Copy this entire folder (`qgis-ai-tools/`) anywhere you want
-2. Update MCP config (step 4) to point to new location
-
-**Option B: Clone from repository**
-
-If this is version-controlled:
 ```bash
-git clone <repo-url> ~/Documents/qgis-ai-tools
-cd ~/Documents/qgis-ai-tools
+cd ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 ```
 
-### 4. Configure MCP
+**Note:** The repository clones directly as the plugin. No copying needed!
+
+### 3. Configure MCP
 
 **Create or edit:** `~/.claude/mcp.json`
 
 **Windows:** `C:\Users\<YourUsername>\.claude\mcp.json`
 **Mac/Linux:** `~/.claude/mcp.json`
 
+**Windows Example:**
 ```json
 {
   "mcpServers": {
     "qgis-control": {
       "command": "python",
       "args": [
-        "/FULL/PATH/TO/qgis-ai-tools/mcp-server/server.py"
+        "C:\\Program Files\\QGIS 3.40.7\\apps\\qgis-ltr\\python\\plugins\\qgis_ai_bridge\\mcp-server\\server.py"
+      ]
+    }
+  }
+}
+```
+
+**Mac Example:**
+```json
+{
+  "mcpServers": {
+    "qgis-control": {
+      "command": "python",
+      "args": [
+        "/Users/YOUR_USERNAME/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/qgis_ai_bridge/mcp-server/server.py"
+      ]
+    }
+  }
+}
+```
+
+**Linux Example:**
+```json
+{
+  "mcpServers": {
+    "qgis-control": {
+      "command": "python",
+      "args": [
+        "/home/YOUR_USERNAME/.local/share/QGIS/QGIS3/profiles/default/python/plugins/qgis_ai_bridge/mcp-server/server.py"
       ]
     }
   }
@@ -76,11 +92,11 @@ cd ~/Documents/qgis-ai-tools
 ```
 
 **Important:**
-- Use FULL absolute path
+- Use FULL absolute path to the MCP server inside the plugin folder
 - On Windows, use double backslashes: `"C:\\Users\\..."`
 - Or use forward slashes: `"C:/Users/..."`
 
-### 5. Enable QGIS Plugin
+### 4. Enable QGIS Plugin
 
 1. Launch QGIS
 2. Go to **Plugins → Manage and Install Plugins**
@@ -88,7 +104,7 @@ cd ~/Documents/qgis-ai-tools
 4. Find **QGIS AI Bridge** and check the box to enable it
 5. Verify in **Log Messages** panel → should see "QGIS AI Bridge: API server started on port 5557"
 
-### 6. Restart Claude Code / Cline
+### 5. Restart Claude Code / Cline
 
 **Claude Code CLI:**
 ```bash
@@ -102,7 +118,7 @@ exit
 2. Type: "Cline: Restart MCP Servers"
 3. Or restart VS Code
 
-### 7. Verify Installation
+### 6. Verify Installation
 
 Test in Claude Code or Cline:
 
@@ -140,14 +156,16 @@ qgis_control({"command": "qgis.status"})
 **Option 1: Open workspace file**
 ```
 File → Open Workspace from File
-Select: qgis-ai-tools/qgis-ai-development.code-workspace
+Select: qgis_ai_bridge/qgis-ai-bridge.code-workspace
 ```
 
-**Option 2: Manually add folders**
-1. Open VS Code
-2. File → Add Folder to Workspace
-3. Add: `qgis-ai-tools/`
-4. Add: `C:\Program Files\QGIS 3.40.7\...\qgis_ai_bridge\`
+**Option 2: Open folder directly**
+```
+File → Open Folder
+Select: C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins\qgis_ai_bridge\
+```
+
+The repository IS the plugin, so you only need to open one folder.
 
 ## Troubleshooting
 
@@ -161,7 +179,8 @@ Select: qgis-ai-tools/qgis-ai-development.code-workspace
 
 **Check 2: Python can run server**
 ```bash
-python /path/to/qgis-ai-tools/mcp-server/server.py
+# Windows example:
+python "C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins\qgis_ai_bridge\mcp-server\server.py"
 # Should not error (will wait for input - Ctrl+C to exit)
 ```
 
@@ -214,40 +233,49 @@ qgis_control({"command": "qgis.status"})
 ## File Structure After Installation
 
 ```
-qgis-ai-tools/                       (Anywhere you want)
+QGIS Plugins/qgis_ai_bridge/         (This IS the repository)
+├── .git/                            Git repository
 ├── README.md
-├── INSTALLATION.md                  (This file)
-├── qgis-ai-development.code-workspace
-├── mcp-server/
-│   ├── server.py
-│   └── qgis_mcp_skills.md
-└── docs/
-    ├── IMPLEMENTATION_GUIDE.md
-    └── VSCODE_SETUP.md
-
-QGIS Plugins/                        (Must be in QGIS folder)
-└── qgis_ai_bridge/
-    ├── __init__.py
-    ├── api_server.py
-    ├── COMMAND_REGISTRY.py
-    ├── commands/
-    │   ├── qgis_commands.py
-    │   ├── widget_commands.py
-    │   └── crash_commands.py
-    └── utils.py
+├── INSTALLATION.md                  This file
+├── IMPLEMENTATION_GUIDE.md          Architecture & patterns
+├── VSCODE_SETUP.md                  VS Code setup
+├── qgis-ai-bridge.code-workspace    VS Code workspace
+│
+├── mcp-server/                      MCP server (subdirectory)
+│   ├── server.py                    Main server
+│   └── qgis_mcp_skills.md           Command reference
+│
+├── commands/                        Command handlers
+│   ├── qgis_commands.py
+│   ├── widget_commands.py
+│   └── crash_commands.py
+├── utils/                           Helper utilities
+│   ├── widget_finder.py
+│   ├── log_buffer.py
+│   └── coordinate_helper.py
+│
+├── __init__.py                      Plugin entry
+├── ai_bridge.py                     Plugin loader
+├── api_server.py                    HTTP API
+├── COMMAND_REGISTRY.py              Command routing
+├── COMMAND_TEMPLATE.py              Template for new commands
+├── config.json                      Configuration
+└── metadata.txt                     QGIS metadata
 ```
+
+**Key Point:** The repository lives IN the QGIS plugins folder. Git tracks the actual working files directly.
 
 ## Next Steps
 
-1. Read `docs/VSCODE_SETUP.md` for VS Code/Cline setup
+1. Read `VSCODE_SETUP.md` for VS Code/Cline setup
 2. Read `mcp-server/qgis_mcp_skills.md` for quick command reference
-3. Read `docs/IMPLEMENTATION_GUIDE.md` for architecture details
+3. Read `IMPLEMENTATION_GUIDE.md` for architecture details
 4. Try example workflows in README.md
 
 ## Support
 
 If you encounter issues:
 1. Check the troubleshooting section above
-2. Review `docs/IMPLEMENTATION_GUIDE.md`
+2. Review `IMPLEMENTATION_GUIDE.md`
 3. Check QGIS Log Messages panel
 4. Use `qgis.read_log` command to see what's happening

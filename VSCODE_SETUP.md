@@ -27,14 +27,16 @@ Open `C:\Users\PC\.claude\mcp.json` and verify it contains:
     "qgis-control": {
       "command": "python",
       "args": [
-        "C:\\Program Files\\QGIS 3.40.7\\apps\\qgis-ltr\\python\\plugins\\qgis_mcp_server\\server.py"
+        "C:\\Program Files\\QGIS 3.40.7\\apps\\qgis-ltr\\python\\plugins\\qgis_ai_bridge\\mcp-server\\server.py"
       ]
     }
   }
 }
 ```
 
-**Important:** Use double backslashes (`\\`) in Windows paths!
+**Important:**
+- The MCP server is inside the plugin directory at `mcp-server/server.py`
+- Use double backslashes (`\\`) in Windows paths!
 
 ## Step 3: Restart Cline
 
@@ -161,11 +163,13 @@ qgis_control({"command": "dialog.close",
 
 ## Files and Documentation
 
-- **MCP Server:** `qgis_mcp_server/server.py`
-- **QGIS Plugin:** `qgis_ai_bridge/`
-- **Command Registry:** `qgis_ai_bridge/COMMAND_REGISTRY.py`
-- **Skills Reference:** `qgis_mcp_server/qgis_mcp_skills.md`
-- **Full Guide:** `qgis_ai_bridge/IMPLEMENTATION_GUIDE.md`
+**Repository Structure:** The Git repository IS the QGIS plugin (located in QGIS plugins folder)
+
+- **MCP Server:** `mcp-server/server.py` (subdirectory of plugin)
+- **Command Registry:** `COMMAND_REGISTRY.py`
+- **Skills Reference:** `mcp-server/qgis_mcp_skills.md`
+- **Full Guide:** `IMPLEMENTATION_GUIDE.md`
+- **Installation:** `INSTALLATION.md`
 
 ## Support
 
