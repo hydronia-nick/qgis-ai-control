@@ -22,7 +22,8 @@ from .commands.qgis_commands import (
 from .commands.crash_commands import crash_save, crash_restore, crash_list
 from .commands.widget_commands import (
     widget_list_windows, widget_find, widget_inspect, widget_click,
-    widget_wait_for, error_detect, dialog_close
+    widget_wait_for, error_detect, dialog_close,
+    widget_set_text, widget_select_item, widget_send_keys
 )
 
 # COMMANDS - Maps command strings to handler functions
@@ -44,6 +45,9 @@ COMMANDS = {
     "widget.inspect": widget_inspect,
     "widget.click": widget_click,
     "widget.wait_for": widget_wait_for,
+    "widget.set_text": widget_set_text,
+    "widget.select_item": widget_select_item,
+    "widget.send_keys": widget_send_keys,
     "error.detect": error_detect,
     "dialog.close": dialog_close,
 }
@@ -333,6 +337,68 @@ HELP = {
             }
         },
         "description": "Wait for widget to appear/disappear or reach a certain state"
+    },
+    "widget.set_text": {
+        "params": {
+            "objectName": "str (required: widget to set text in)",
+            "text": "str (required: text to set)",
+            "clear_first": "bool (optional: clear existing text first, defaults to True)"
+        },
+        "returns": {
+            "success": "bool",
+            "widget_class": "str",
+            "text_set": "str",
+            "objectName": "str"
+        },
+        "example": {
+            "command": "widget.set_text",
+            "params": {
+                "objectName": "lineEdit_search",
+                "text": "Hello World"
+            }
+        },
+        "description": "Set text in a text input widget (QLineEdit, QTextEdit, QPlainTextEdit)"
+    },
+    "widget.select_item": {
+        "params": {
+            "objectName": "str (required: widget to select from)",
+            "value": "str or int (required: item text or index to select)",
+            "by_index": "bool (optional: select by index instead of text, defaults to False)"
+        },
+        "returns": {
+            "success": "bool",
+            "widget_class": "str",
+            "selected": "str or int",
+            "current_text": "str",
+            "objectName": "str"
+        },
+        "example": {
+            "command": "widget.select_item",
+            "params": {
+                "objectName": "comboBox_projection",
+                "value": "EPSG:4326"
+            }
+        },
+        "description": "Select an item in a dropdown/combobox/listbox"
+    },
+    "widget.send_keys": {
+        "params": {
+            "objectName": "str (optional: widget to send keys to, if None sends globally)",
+            "keys": "str (required: keys to send, e.g., 'Ctrl+S', 'Enter', 'text')",
+            "delay": "float (optional: delay between key presses in seconds, defaults to 0.1)"
+        },
+        "returns": {
+            "success": "bool",
+            "keys_sent": "str",
+            "target": "str"
+        },
+        "example": {
+            "command": "widget.send_keys",
+            "params": {
+                "keys": "Ctrl+S"
+            }
+        },
+        "description": "Send keyboard input to a widget or globally"
     },
     "error.detect": {
         "params": {},

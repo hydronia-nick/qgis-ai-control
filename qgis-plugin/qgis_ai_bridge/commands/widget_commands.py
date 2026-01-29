@@ -577,3 +577,303 @@ def dialog_close(params):
             "success": False,
             "error": str(e)
         }
+
+
+def widget_set_text(params):
+    """
+    Set text in a text input widget (QLineEdit, QTextEdit, QPlainTextEdit)
+
+    Args:
+        params (dict): Command parameters
+            - objectName (str, required): Widget to set text in
+            - text (str, required): Text to set
+            - clear_first (bool, optional): Clear existing text first, defaults to True
+
+    Returns:
+        dict: {
+            "success": bool,
+            "widget_class": str,
+            "text_set": str
+        }
+    """
+    if 'objectName' not in params:
+        return {"success": False, "error": "Missing required parameter: objectName"}
+    if 'text' not in params:
+        return {"success": False, "error": "Missing required parameter: text"}
+
+    try:
+        from qgis.utils import iface
+        from PyQt5.QtWidgets import QApplication
+
+        object_name = params['objectName']
+        text = params['text']
+        clear_first = params.get('clear_first', True)
+
+        # Find widget
+        widget = iface.mainWindow().findChild(object, object_name)
+        if not widget:
+            return {
+                "success": False,
+                "error": f"Widget not found: {object_name}"
+            }
+
+        widget_class = widget.__class__.__name__
+
+        # Clear first if requested
+        if clear_first:
+            if hasattr(widget, 'clear'):
+                widget.clear()
+            elif hasattr(widget, 'setText'):
+                widget.setText('')
+            elif hasattr(widget, 'setPlainText'):
+                widget.setPlainText('')
+
+        # Set text based on widget type
+        if hasattr(widget, 'setText'):
+            widget.setText(text)
+        elif hasattr(widget, 'setPlainText'):
+            widget.setPlainText(text)
+        elif hasattr(widget, 'insertPlainText'):
+            widget.insertPlainText(text)
+        else:
+            return {
+                "success": False,
+                "error": f"Widget {widget_class} doesn't support text setting"
+            }
+
+        # Process events
+        QApplication.processEvents()
+
+        return {
+            "success": True,
+            "widget_class": widget_class,
+            "text_set": text,
+            "objectName": object_name
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+def widget_select_item(params):
+    """
+    Select an item in a dropdown/combobox/listbox
+
+    Args:
+        params (dict): Command parameters
+            - objectName (str, required): Widget to select from
+            - value (str or int, required): Item text or index to select
+            - by_index (bool, optional): Select by index instead of text, defaults to False
+
+    Returns:
+        dict: {
+            "success": bool,
+            "widget_class": str,
+            "selected": str or int,
+            "current_text": str
+        }
+    """
+    if 'objectName' not in params:
+        return {"success": False, "error": "Missing required parameter: objectName"}
+    if 'value' not in params:
+        return {"success": False, "error": "Missing required parameter: value"}
+
+    try:
+        from qgis.utils import iface
+        from PyQt5.QtWidgets import QApplication
+
+        object_name = params['objectName']
+        value = params['value']
+        by_index = params.get('by_index', False)
+
+        # Find widget
+        widget = iface.mainWindow().findChild(object, object_name)
+        if not widget:
+            return {
+                "success": False,
+                "error": f"Widget not found: {object_name}"
+            }
+
+        widget_class = widget.__class__.__name__
+
+        # Select based on widget type
+        if hasattr(widget, 'setCurrentIndex'):
+            if by_index:
+                widget.setCurrentIndex(int(value))
+            else:
+                # Find index by text
+                index = widget.findText(str(value))
+                if index == -1:
+                    return {
+                        "success": False,
+                        "error": f"Item not found: {value}"
+                    }
+                widget.setCurrentIndex(index)
+
+            # Get current selection
+            current_text = widget.currentText() if hasattr(widget, 'currentText') else str(value)
+
+        elif hasattr(widget, 'setCurrentRow'):
+            # For list widgets
+            if by_index:
+                widget.setCurrentRow(int(value))
+            else:
+                # Find row by text
+                from PyQt5.QtCore import Qt
+                items = widget.findItems(str(value), Qt.MatchExactly)
+                if not items:
+                    return {
+                        "success": False,
+                        "error": f"Item not found: {value}"
+                    }
+                widget.setCurrentRow(widget.row(items[0]))
+
+            current_item = widget.currentItem()
+            current_text = current_item.text() if current_item else str(value)
+
+        else:
+            return {
+                "success": False,
+                "error": f"Widget {widget_class} doesn't support item selection"
+            }
+
+        # Process events
+        QApplication.processEvents()
+
+        return {
+            "success": True,
+            "widget_class": widget_class,
+            "selected": value,
+            "current_text": current_text,
+            "objectName": object_name
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+def widget_send_keys(params):
+    """
+    Send keyboard input to a widget or globally
+
+    Args:
+        params (dict): Command parameters
+            - objectName (str, optional): Widget to send keys to (if None, sends globally)
+            - keys (str, required): Keys to send (e.g., "Ctrl+S", "Enter", "text")
+            - delay (float, optional): Delay between key presses in seconds, defaults to 0.1
+
+    Returns:
+        dict: {
+            "success": bool,
+            "keys_sent": str,
+            "target": str
+        }
+    """
+    if 'keys' not in params:
+        return {"success": False, "error": "Missing required parameter: keys"}
+
+    try:
+        from qgis.utils import iface
+        from PyQt5.QtWidgets import QApplication
+        from PyQt5.QtCore import Qt
+        from PyQt5.QtTest import QTest
+        import time
+
+        keys_str = params['keys']
+        object_name = params.get('objectName')
+        delay = params.get('delay', 0.1)
+
+        # Find target widget
+        if object_name:
+            target_widget = iface.mainWindow().findChild(object, object_name)
+            if not target_widget:
+                return {
+                    "success": False,
+                    "error": f"Widget not found: {object_name}"
+                }
+            target = f"widget:{object_name}"
+        else:
+            target_widget = QApplication.focusWidget() or iface.mainWindow()
+            target = "focused widget"
+
+        # Parse key combination
+        key_map = {
+            'Enter': Qt.Key_Return,
+            'Return': Qt.Key_Return,
+            'Tab': Qt.Key_Tab,
+            'Escape': Qt.Key_Escape,
+            'Esc': Qt.Key_Escape,
+            'Space': Qt.Key_Space,
+            'Backspace': Qt.Key_Backspace,
+            'Delete': Qt.Key_Delete,
+            'Up': Qt.Key_Up,
+            'Down': Qt.Key_Down,
+            'Left': Qt.Key_Left,
+            'Right': Qt.Key_Right,
+            'Home': Qt.Key_Home,
+            'End': Qt.Key_End,
+            'PageUp': Qt.Key_PageUp,
+            'PageDown': Qt.Key_PageDown,
+        }
+
+        modifier_map = {
+            'Ctrl': Qt.ControlModifier,
+            'Shift': Qt.ShiftModifier,
+            'Alt': Qt.AltModifier,
+            'Meta': Qt.MetaModifier,
+        }
+
+        # Parse key combination (e.g., "Ctrl+S" or "Enter" or "text")
+        parts = keys_str.split('+')
+
+        if len(parts) > 1:
+            # Has modifiers
+            modifiers = Qt.NoModifier
+            for part in parts[:-1]:
+                part = part.strip()
+                if part in modifier_map:
+                    modifiers |= modifier_map[part]
+
+            key_part = parts[-1].strip()
+            if key_part in key_map:
+                key = key_map[key_part]
+            elif len(key_part) == 1:
+                key = ord(key_part.upper())
+            else:
+                return {
+                    "success": False,
+                    "error": f"Unknown key: {key_part}"
+                }
+
+            # Send key with modifiers
+            QTest.keyClick(target_widget, key, modifiers, int(delay * 1000))
+
+        elif keys_str in key_map:
+            # Single special key
+            QTest.keyClick(target_widget, key_map[keys_str], Qt.NoModifier, int(delay * 1000))
+
+        else:
+            # Plain text input
+            QTest.keyClicks(target_widget, keys_str, Qt.NoModifier, int(delay * 1000))
+
+        # Process events
+        QApplication.processEvents()
+        time.sleep(delay)
+
+        return {
+            "success": True,
+            "keys_sent": keys_str,
+            "target": target
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
