@@ -1,0 +1,190 @@
+{
+  "workflow_name": "test_workflow",
+  "description": "Testing recording system",
+  "start_time": "2026-01-29T18:37:28.427871",
+  "duration": 11.069422,
+  "events": [
+    {
+      "timestamp": "2026-01-29T18:37:28.437880",
+      "elapsed": 0.01,
+      "event": "show",
+      "widget": {
+        "class": "QToolButton",
+        "objectName": "ScrollLeftButton",
+        "text": "",
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.438879",
+      "elapsed": 0.011,
+      "event": "show",
+      "widget": {
+        "class": "QToolButton",
+        "objectName": "ScrollRightButton",
+        "text": "",
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.439909",
+      "elapsed": 0.012,
+      "event": "show",
+      "widget": {
+        "class": "QAbstractButton",
+        "objectName": "",
+        "text": "",
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.440918",
+      "elapsed": 0.013,
+      "event": "hide",
+      "widget": {
+        "class": "QToolButton",
+        "objectName": "ScrollRightButton",
+        "text": "",
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.440918",
+      "elapsed": 0.013,
+      "event": "hide",
+      "widget": {
+        "class": "QToolButton",
+        "objectName": "ScrollLeftButton",
+        "text": "",
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.441917",
+      "elapsed": 0.014,
+      "event": "hide",
+      "widget": {
+        "class": "QPlainTextEdit",
+        "objectName": "",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.441917",
+      "elapsed": 0.014,
+      "event": "hide",
+      "widget": {
+        "class": "QWidget",
+        "objectName": "qt_scrollarea_viewport",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.441917",
+      "elapsed": 0.014,
+      "event": "hide",
+      "widget": {
+        "class": "QScrollBar",
+        "objectName": "",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.441917",
+      "elapsed": 0.014,
+      "event": "hide",
+      "widget": {
+        "class": "QWidget",
+        "objectName": "qt_scrollarea_vcontainer",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.442917",
+      "elapsed": 0.014,
+      "event": "show",
+      "widget": {
+        "class": "QWidget",
+        "objectName": "qt_scrollarea_viewport",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:28.442917",
+      "elapsed": 0.015,
+      "event": "show",
+      "widget": {
+        "class": "QPlainTextEdit",
+        "objectName": "",
+        "text": null,
+        "windowTitle": ""
+      },
+      "parent_window": {
+        "class": "QMainWindow",
+        "objectName": "QgisApp",
+        "title": "Untitled Project \u2014 QGIS"
+      }
+    },
+    {
+      "timestamp": "2026-01-29T18:37:34.680703",
+      "elapsed": 6.253,
+      "event": "note",
+      "note": "This is a test annotation"
+    }
+  ]
+}

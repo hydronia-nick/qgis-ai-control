@@ -26,6 +26,10 @@ from .commands.widget_commands import (
     widget_set_text, widget_select_item, widget_send_keys
 )
 from .commands.layer_commands import layer_list
+from .commands.workflow_commands import (
+    workflow_record_start, workflow_record_stop, workflow_add_note,
+    workflow_list, workflow_get
+)
 
 # COMMANDS - Maps command strings to handler functions
 COMMANDS = {
@@ -52,6 +56,11 @@ COMMANDS = {
     "error.detect": error_detect,
     "dialog.close": dialog_close,
     "layer.list": layer_list,
+    "workflow.record_start": workflow_record_start,
+    "workflow.record_stop": workflow_record_stop,
+    "workflow.add_note": workflow_add_note,
+    "workflow.list": workflow_list,
+    "workflow.get": workflow_get,
 }
 
 
@@ -450,6 +459,86 @@ HELP = {
             }
         },
         "description": "List all layers in current QGIS project with metadata"
+    },
+    "workflow.record_start": {
+        "params": {
+            "workflow_name": "str (required: name for the workflow)",
+            "description": "str (optional: brief description of workflow purpose)"
+        },
+        "returns": {
+            "success": "bool",
+            "recording": "bool",
+            "workflow_name": "str",
+            "start_time": "str"
+        },
+        "example": {
+            "command": "workflow.record_start",
+            "params": {
+                "workflow_name": "oilflow2d_new_project",
+                "description": "Create new OilFlow2D project"
+            }
+        },
+        "description": "Start recording workflow interactions (clicks, keyboard, dialogs)"
+    },
+    "workflow.record_stop": {
+        "params": {},
+        "returns": {
+            "success": "bool",
+            "workflow_name": "str",
+            "event_count": "int",
+            "duration": "float",
+            "file_path": "str"
+        },
+        "example": {
+            "command": "workflow.record_stop"
+        },
+        "description": "Stop recording and generate workflow documentation"
+    },
+    "workflow.add_note": {
+        "params": {
+            "note": "str (required: annotation text)"
+        },
+        "returns": {
+            "success": "bool",
+            "note": "str"
+        },
+        "example": {
+            "command": "workflow.add_note",
+            "params": {
+                "note": "This sets the output coordinate system"
+            }
+        },
+        "description": "Add manual annotation to current workflow recording"
+    },
+    "workflow.list": {
+        "params": {},
+        "returns": {
+            "success": "bool",
+            "workflows": "list",
+            "count": "int"
+        },
+        "example": {
+            "command": "workflow.list"
+        },
+        "description": "List all saved workflows"
+    },
+    "workflow.get": {
+        "params": {
+            "workflow_name": "str (required: name of workflow to retrieve)"
+        },
+        "returns": {
+            "success": "bool",
+            "workflow_name": "str",
+            "content": "str",
+            "file_path": "str"
+        },
+        "example": {
+            "command": "workflow.get",
+            "params": {
+                "workflow_name": "oilflow2d_new_project"
+            }
+        },
+        "description": "Get specific workflow content for AI to follow"
     },
 }
 
