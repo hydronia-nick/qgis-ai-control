@@ -19,26 +19,28 @@ This project enables AI assistants (Claude Code, Cline, etc.) to autonomously co
 
 #### From GitHub
 
-```bash
-# Clone repository
-git clone https://github.com/hydronia-nick/qgis-ai-control.git
-cd qgis-ai-control
+**Note:** This repository IS the QGIS plugin itself. Clone directly to your QGIS plugins folder.
 
+```bash
 # Install Python dependencies
 pip install requests psutil mcp
 
-# Copy QGIS plugin to plugins folder
+# Clone repository directly to QGIS plugins folder
 # Windows:
-xcopy qgis-plugin\qgis_ai_bridge "C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins\qgis_ai_bridge" /E /I
+cd "C:\Program Files\QGIS 3.40.7\apps\qgis-ltr\python\plugins"
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 
 # Mac:
-cp -r qgis-plugin/qgis_ai_bridge ~/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/
+cd ~/Library/Application\ Support/QGIS/QGIS3/profiles/default/python/plugins/
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 
 # Linux:
-cp -r qgis-plugin/qgis_ai_bridge ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
+cd ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/
+git clone https://github.com/hydronia-nick/qgis-ai-control.git qgis_ai_bridge
 
-# Configure MCP
-# Edit ~/.claude/mcp.json (see INSTALLATION.md for details)
+# Configure MCP (see INSTALLATION.md for details)
+# Windows: Edit C:\Users\YOUR_USERNAME\.claude\mcp.json
+# Mac/Linux: Edit ~/.claude/mcp.json
 ```
 
 #### Manual Installation
@@ -69,51 +71,50 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})
 
 ## Repository Structure
 
+**Important:** This repository IS the QGIS plugin. It lives directly in your QGIS plugins folder.
+
 ```
-qgis-ai-control/                    (This repository)
-├── README.md                       Quick start guide
-├── INSTALLATION.md                 Detailed installation
+qgis_ai_bridge/                     (This repository = QGIS plugin)
+├── .git/                           Git repository
+├── README.md                       This file
+├── INSTALLATION.md                 Detailed installation guide
+├── IMPLEMENTATION_GUIDE.md         Full architecture & patterns
+├── VSCODE_SETUP.md                 VS Code/Cline setup
 ├── .gitignore                      Git ignore rules
-├── qgis-ai-development.code-workspace  VS Code workspace
-├── mcp-server/                     MCP server (standalone)
+│
+├── mcp-server/                     MCP server (subdirectory)
 │   ├── server.py                   Main MCP server
 │   └── qgis_mcp_skills.md          Command reference
-├── qgis-plugin/                    QGIS plugin files
-│   └── qgis_ai_bridge/             Copy to QGIS plugins folder
-│       ├── commands/               Command handlers
-│       ├── COMMAND_REGISTRY.py     Command routing
-│       └── api_server.py           HTTP server
-└── docs/                           Documentation
-    ├── IMPLEMENTATION_GUIDE.md     Full architecture
-    └── VSCODE_SETUP.md             VS Code setup
+│
+├── commands/                       Command handlers
+│   ├── qgis_commands.py
+│   ├── widget_commands.py
+│   └── crash_commands.py
+├── utils/                          Helper utilities
+│   ├── widget_finder.py
+│   ├── log_buffer.py
+│   └── coordinate_helper.py
+│
+├── COMMAND_REGISTRY.py             Command routing (single source of truth)
+├── api_server.py                   HTTP API server (localhost:5557)
+├── ai_bridge.py                    Plugin entry point
+├── config.json                     Configuration
+└── metadata.txt                    QGIS plugin metadata
 ```
 
 **How it works:**
 1. AI calls MCP tool: `qgis_control({"command": "..."})`
-2. MCP server routes:
+2. MCP server (mcp-server/server.py) routes:
    - OS commands (launch, find_process) → Execute directly
    - API commands (widget.*, etc.) → Forward to QGIS HTTP API
-3. QGIS plugin receives request, executes, returns result
+3. QGIS plugin (api_server.py) receives request, executes, returns result
 4. AI receives structured response
-
-## Folder Structure
-
-```
-qgis-ai-tools/
-├── README.md                       (This file)
-├── mcp-server/
-│   ├── server.py                   Main MCP server
-│   └── qgis_mcp_skills.md          Quick command reference
-└── docs/
-    ├── IMPLEMENTATION_GUIDE.md     Complete architecture & patterns
-    └── VSCODE_SETUP.md             VS Code/Cline configuration
-```
 
 ## Documentation
 
 - **Quick Start:** `mcp-server/qgis_mcp_skills.md` (< 200 tokens)
-- **Full Guide:** `docs/IMPLEMENTATION_GUIDE.md` (architecture, patterns, all commands)
-- **VS Code Setup:** `docs/VSCODE_SETUP.md` (Cline configuration)
+- **Full Guide:** `IMPLEMENTATION_GUIDE.md` (architecture, patterns, all commands)
+- **VS Code Setup:** `VSCODE_SETUP.md` (Cline configuration)
 
 ## Commands (22 total)
 
@@ -138,28 +139,34 @@ Full command reference: `qgis_control({"command": "help"})`
 
 ## Development
 
-This folder is meant to be portable. You can:
-- Clone to any location
-- Update MCP config to point to new location
-- Everything works the same
+**Git repository location:** This repository must stay in your QGIS plugins folder since it IS the plugin itself. All development happens directly in the QGIS plugins directory.
 
-The QGIS plugin (`qgis_ai_bridge/`) must stay in QGIS plugins folder.
+**Working with Git:**
+- Changes are tracked immediately (no copying needed)
+- Edit files directly in the plugins folder
+- Commit and push as normal
+- QGIS plugin reload picks up changes instantly
+
+**VS Code Workspace:** See VSCODE_SETUP.md for multi-folder workspace configuration.
 
 ## Configuration
 
-**MCP Config:** `C:\Users\PC\.claude\mcp.json`
+**MCP Config:** Update your `~/.claude/mcp.json` (or `C:\Users\YOUR_USERNAME\.claude\mcp.json` on Windows)
+
 ```json
 {
   "mcpServers": {
     "qgis-control": {
       "command": "python",
       "args": [
-        "C:\\Users\\PC\\Documents\\qgis-ai-tools\\mcp-server\\server.py"
+        "C:\\Program Files\\QGIS 3.40.7\\apps\\qgis-ltr\\python\\plugins\\qgis_ai_bridge\\mcp-server\\server.py"
       ]
     }
   }
 }
 ```
+
+**Important:** Update the path to match your QGIS installation location and operating system.
 
 ## License
 
@@ -193,4 +200,4 @@ Custom development for QGIS AI automation.
 
 **Target:** 54-58 commands total for comprehensive GIS automation
 
-See [IMPLEMENTATION_GUIDE.md](docs/IMPLEMENTATION_GUIDE.md) for detailed roadmap and implementation plans.
+See [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) for detailed roadmap and implementation plans.
