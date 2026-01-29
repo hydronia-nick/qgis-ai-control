@@ -25,6 +25,7 @@ from .commands.widget_commands import (
     widget_wait_for, error_detect, dialog_close,
     widget_set_text, widget_select_item, widget_send_keys
 )
+from .commands.layer_commands import layer_list
 
 # COMMANDS - Maps command strings to handler functions
 COMMANDS = {
@@ -50,6 +51,7 @@ COMMANDS = {
     "widget.send_keys": widget_send_keys,
     "error.detect": error_detect,
     "dialog.close": dialog_close,
+    "layer.list": layer_list,
 }
 
 
@@ -431,6 +433,23 @@ HELP = {
             }
         },
         "description": "Close a dialog by objectName or title"
+    },
+    "layer.list": {
+        "params": {
+            "include_metadata": "bool (optional: include detailed metadata, defaults to True)"
+        },
+        "returns": {
+            "success": "bool",
+            "layers": "list",
+            "count": "int"
+        },
+        "example": {
+            "command": "layer.list",
+            "params": {
+                "include_metadata": True
+            }
+        },
+        "description": "List all layers in current QGIS project with metadata"
     },
 }
 

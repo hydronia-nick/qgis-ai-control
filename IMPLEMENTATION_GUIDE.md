@@ -592,18 +592,30 @@ qgis_control({
 # Returns: {"success": true, "output": "...", "lines": [...]}
 ```
 
+**layer.list** - List all layers in current project
+```python
+qgis_control({
+    "command": "layer.list",
+    "params": {"include_metadata": True}
+})
+# Returns: {"success": true, "layers": [...], "count": 0}
+# Each layer includes: id, name, type, is_valid, is_visible, crs, extent, feature_count, source, provider
+```
+
 ### 🔧 In Progress
 
-None - Phase 1 & 2 complete (Discovery, Error Recovery, Form Interaction)
+**Phase 3: Essential GIS Operations**
+- ✅ layer.list - List all layers with metadata (COMPLETE - 2026-01-29)
+- ⬜ layer.add - Next up
 
 ### ⬜ Planned (Priority Order)
 
 **Phase 3: Essential GIS Operations (Target: 13-15 commands)**
 
 **Layer Management (6-7 commands):**
-1. layer.add - Add vector/raster layer to project
-2. layer.remove - Remove layer from project
-3. layer.list - Get all layers with properties (name, type, CRS, extent, feature count)
+1. ✅ layer.list - Get all layers with properties (name, type, CRS, extent, feature count) - **DONE**
+2. layer.add - Add vector/raster layer to project
+3. layer.remove - Remove layer from project
 4. layer.set_active - Set the active layer
 5. layer.set_visible - Show/hide layer
 6. layer.reorder - Change layer order in TOC
@@ -697,6 +709,14 @@ None - Phase 1 & 2 complete (Discovery, Error Recovery, Form Interaction)
 **Status:** NEEDS TESTING
 **Next Step:** Build dialog.open and manually verify
 
+### 4. API Restart Can Crash QGIS
+**Command:** qgis.restart_api
+**Problem:** Can cause QGIS to crash during API server restart
+**Why:** Flask server restart while handling requests can destabilize QGIS
+**Workaround:** Use qgis.kill_process + qgis.launch for full restart instead
+**Status:** ⚠️ USE WITH CAUTION
+**Date Found:** 2026-01-29
+
 ---
 
 ## 🧪 Testing Checklist
@@ -717,51 +737,45 @@ Before marking any command as ✅ Working:
 
 ## 🚀 Next Command to Build
 
-**Phase 3 Starting Point: Layer Management**
+**Command:** layer.add
+**Priority:** HIGH (Load data into QGIS)
+**Purpose:** Add vector or raster layers to the current project
+**Params:** `{"path": str, "name": str (optional), "provider": str (optional)}`
+**Returns:** `{"success": bool, "layer_id": str, "layer_name": str}`
 
-**Command:** layer.list
-**Priority:** CRITICAL (Foundation for all GIS operations)
-**Purpose:** List all layers in the project with metadata
-**Params:** `{"include_metadata": bool (optional, default True)}`
-**Returns:** `{"success": bool, "layers": list, "count": int}`
-
-**Why next:** Can't do any GIS work without knowing what layers exist. This is the foundation for all layer operations.
+**Why next:** After listing layers, we need to add layers to work with them. Essential for loading data.
 
 **Implementation approach:**
 ```python
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsVectorLayer, QgsRasterLayer
+import os
 
-def layer_list(params):
-    """List all layers in project with metadata"""
-    include_metadata = params.get('include_metadata', True)
+def layer_add(params):
+    """Add vector or raster layer to project"""
+    if 'path' not in params:
+        return {"success": False, "error": "Missing required parameter: path"}
 
     try:
-        project = QgsProject.instance()
-        layers = []
+        path = params['path']
+        name = params.get('name', os.path.basename(path))
+        provider = params.get('provider', 'ogr')  # ogr for vector, gdal for raster
 
-        for layer in project.mapLayers().values():
-            layer_info = {
-                "id": layer.id(),
-                "name": layer.name(),
-                "type": layer.type().name if hasattr(layer.type(), 'name') else str(layer.type()),
-                "is_valid": layer.isValid(),
-                "is_visible": project.layerTreeRoot().findLayer(layer.id()).isVisible()
-            }
+        # Determine layer type from extension
+        if path.lower().endswith(('.tif', '.tiff', '.jpg', '.png', '.img')):
+            layer = QgsRasterLayer(path, name, 'gdal')
+        else:
+            layer = QgsVectorLayer(path, name, provider)
 
-            if include_metadata:
-                layer_info.update({
-                    "crs": layer.crs().authid() if layer.crs().isValid() else "N/A",
-                    "extent": layer.extent().toString() if layer.extent() else "N/A",
-                    "feature_count": layer.featureCount() if hasattr(layer, 'featureCount') else 0,
-                    "source": layer.source()
-                })
+        if not layer.isValid():
+            return {"success": False, "error": f"Layer failed to load: {path}"}
 
-            layers.append(layer_info)
+        QgsProject.instance().addMapLayer(layer)
 
         return {
             "success": True,
-            "layers": layers,
-            "count": len(layers)
+            "layer_id": layer.id(),
+            "layer_name": layer.name(),
+            "layer_type": layer.type().name if hasattr(layer.type(), 'name') else str(layer.type())
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -769,7 +783,7 @@ def layer_list(params):
 
 **Start here:** Follow "Adding a Command" workflow above
 
-**After layer.list, continue with:** layer.add, layer.remove, layer.set_active, layer.set_visible
+**After layer.add, continue with:** layer.remove, layer.set_active, layer.set_visible
 
 ---
 
@@ -902,6 +916,11 @@ crash.restore        # Restore checkpoint (checkpoint_id: str)
 crash.list           # List all checkpoints
 ```
 
+### Layer Management (Phase 3)
+```python
+layer.list           # List all layers (include_metadata: bool)
+```
+
 ### Discovery (Use First!)
 ```python
 qgis_control({"command": "help"})  # List all commands with examples
@@ -911,7 +930,7 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
 ---
 
 **Last Updated:** 2026-01-29
-**Current Command Count:** 22 commands (unified in single MCP)
+**Current Command Count:** 23 commands (1 new in Phase 3)
 **Command Categories:**
   - qgis.* (12):
     - **OS-level** (3): launch, find_process, kill_process
@@ -920,13 +939,14 @@ qgis_control({"command": "qgis.read_log", "params": {"limit": 10}})  # See what 
   - widget.* (8): list_windows, find, inspect, click, wait_for, set_text, select_item, send_keys
   - error.* (1): detect
   - dialog.* (1): close
-**Status:** ✅ Phase 1 & 2 Complete - Full autonomous operation with form interaction
+  - layer.* (1): list
+**Status:** ✅ Phase 1 & 2 Complete, Phase 3 In Progress (1/13-15 commands)
 **Roadmap:**
   - Phase 3 (Essential GIS): 13-15 commands for layer/project/canvas control → Target: 35-37 total
   - Phase 4 (Data Processing): 7-8 commands for geoprocessing and features → Target: 42-45 total
   - Phase 5 (Output/Export): 3 commands for data export → Target: 45-48 total
   - Future Phases: Styling, layouts, plugin management → Target: 54-58 total
-**Next Up:** layer.list (Phase 3 foundation - list all layers with metadata)
+**Next Up:** layer.add (Add vector/raster layers to project)
 **Architecture:** Single unified qgis-control MCP (no qgis-visual needed)
 **Known Limitation:** qgis.read_python_console widget detection is complex. Use qgis.read_log for diagnostics instead.
 **VS Code Setup:** See VSCODE_SETUP.md for Cline/Codex configuration instructions
